@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Inventory</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input {
+            padding: 5px;
+            margin: 5px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-image: url('https://i.ibb.co/P41WVkW/background.jpg'); /* Adjust the path as per your file structure */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Hospital Medicine Inventory</h2>
+
+    <table id="medicineTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Med ID</th>
+                <th>Quantity</th>
+                <th>Buy</th>
+                <th>Sell</th>
+                <th>Actions</th> <!-- Added Actions column header -->
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Paracet</td>
+                <td>112</td>
+                <td id="quantity-112">200</td>
+                <td><input type="number" id="buy-112" placeholder="Enter number" min="0"></td>
+                <td><input type="number" id="sell-112" placeholder="Enter number" min="0"></td>
+                <td><button onclick="editRow(this)">Edit</button></td> <!-- Added Edit button -->
+            </tr>
+        </tbody>
+    </table>
+
+    <button onclick="updateInventory()">Update Inventory</button>
+
+    <h3>Add New Medicine</h3>
+    <input type="text" id="medicineName" placeholder="Medicine Name">
+    <input type="text" id="medicineId" placeholder="Medicine ID">
+    <input type="number" id="medicineQuantity" placeholder="Quantity" min="0">
+    <button onclick="addMedicine()">Add Medicine</button>
+
+    <script>
+        function updateInventory() {
+            const rows = document.querySelectorAll('#medicineTable tbody tr');
+
+            rows.forEach(row => {
+                const medId = row.cells[1].innerText;
+                const quantityCell = document.getElementById(`quantity-${medId}`);
+                const buy = parseInt(document.getElementById(`buy-${medId}`).value) || 0;
+                const sell = parseInt(document.getElementById(`sell-${medId}`).value) || 0;
+                
+                let quantity = parseInt(quantityCell.innerText);
+                let newQuantity = quantity + buy - sell;
+
+                if (newQuantity < 0) {
+                    alert(`Error: Quantity for ${row.cells[0].innerText} cannot be negative!`);
+                } else {
+                    quantityCell.innerText = newQuantity;
+                }
+
+                document.getElementById(`buy-${medId}`).value = '';
+                document.getElementById(`sell-${medId}`).value = '';
+            });
+        }
+
+        function addMedicine() {
+            const name = document.getElementById('medicineName').value;
+            const id = document.getElementById('medicineId').value;
+            const quantity = document.getElementById('medicineQuantity').value;
+
+            if (!name || !id || quantity < 0) {
+                alert('Please fill in all fields with valid values.');
+                return;
+            }
+
+            const existingMed = document.getElementById(`quantity-${id}`);
+            if (existingMed) {
+                alert('Error: Medicine ID already exists. Update existing entry.');
+                return;
+            }
+
+            const table = document.getElementById('medicineTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+
+            newRow.innerHTML = `
+                <td>${name}</td>
+                <td>${id}</td>
+                <td id="quantity-${id}">${quantity}</td>
+                <td><input type="number" id="buy-${id}" placeholder="Enter number" min="0"></td>
+                <td><input type="number" id="sell-${id}" placeholder="Enter number" min="0"></td>
+                <td><button onclick="editRow(this)">Edit</button></td> <!-- Added Edit button for new entries -->
+            `;
+
+            document.getElementById('medicineName').value = '';
+            document.getElementById('medicineId').value = '';
+            document.getElementById('medicineQuantity').value = '';
+        }
+
+        function editRow(button) {
+            const row = button.parentNode.parentNode;
+            const nameCell = row.cells[0];
+            const idCell = row.cells[1];
+            const quantityCell = row.cells[2];
+
+            const currentName = nameCell.innerText;
+            const currentId = idCell.innerText;
+            const currentQuantity = quantityCell.innerText;
+
+            // Turn cells into input fields
+            nameCell.innerHTML = `<input type="text" value="${currentName}" id="edit-name">`;
+            idCell.innerHTML = `<input type="text" value="${currentId}" id="edit-id">`;
+            quantityCell.innerHTML = `<input type="number" value="${currentQuantity}" min="0" id="edit-quantity">`;
+
+            button.innerText = 'Save';
+            button.onclick = function() {
+                saveRow(button);
+            };
+        }
+
+        function saveRow(button) {
+            const row = button.parentNode.parentNode;
+            const newName = document.getElementById('edit-name').value;
+            const newId = document.getElementById('edit-id').value;
+            const newQuantity = document.getElementById('edit-quantity').value;
+
+            if (!newName || !newId || newQuantity < 0) {
+                alert('Please fill in valid values.');
+                return;
+            }
+
+            // Update the row with the new values
+            row.cells[0].innerText = newName;
+            row.cells[1].innerText = newId;
+            row.cells[2].innerHTML = `<span id="quantity-${newId}">${newQuantity}</span>`;
+            row.cells[3].innerHTML = `<input type="number" id="buy-${newId}" placeholder="Enter number" min="0">`;
+            row.cells[4].innerHTML = `<input type="number" id="sell-${newId}" placeholder="Enter number" min="0">`;
+
+            // Restore button to "Edit"
+            button.innerText = 'Edit';
+            button.onclick = function() {
+                editRow(button);
+            };
+        }
+    </script>
+
+</body>
+</html>
