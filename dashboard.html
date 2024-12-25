@@ -162,6 +162,24 @@
             </div>
 
     </div>
+    <script>
+                    document.getElementById('hospitalForm').addEventListener('submit', function (event) {
+                        event.preventDefault(); // Prevent form submission
+
+                        const selectedValue = document.getElementById('hospitalSearch').value;
+
+                        // Redirect based on selected hospital
+                        if (selectedValue === 'City Hospital') {
+                            window.location.href = 'city_hospital.html';  // Redirect to City Hospital page
+                        } else if (selectedValue === 'Sunshine Hospital') {
+                            window.location.href = 'sunshine_hospital.html';  // Redirect to Sunshine Hospital page
+                        } else if (selectedValue === 'Green Valley Medical Center') {
+                            window.location.href = 'green_valley.html';  // Redirect to Green Valley Medical Center page
+                        } else {
+                            alert('Please select a valid hospital from the list.');
+                        }
+                    });
+                </script>
     </nav>
     </div>
 
